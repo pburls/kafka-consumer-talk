@@ -1,2 +1,2 @@
-# csc-e2e-metadata-int-tests
-Shared edge-to-edge integration tests for all the systems apart of the new CSC Release A metadata interfaces
+# CSC Edge to Edge Metadata Interface Integration Tests
+Shared edge-to-edge integration tests ensuring Sky's metadata journeys across the new CSC Release A metadata systems.
