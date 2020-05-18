@@ -1,0 +1,60 @@
+{
+    "keyBag": {
+        "alternativeReferences": [
+            {
+                "source": "PD",
+                "value": "1cd00c5e-0d70-4f3d-89e7-0ee50100575f"
+            },
+            {
+                "source": "PA",
+                "value": "97574b9c-1261-5d5a-9282-ded9abd86166"
+            }
+        ],
+        "sourceSpecificReference": {
+            "source": "PMP",
+            "value": "<to-be-replaced-with-new-uuid>"
+        }
+    },
+    "entities": [
+        {
+            "alternativeReferences": [
+                {
+                    "source": "PA_LEGACY",
+                    "value": "232090"
+                }
+            ],
+            "sourceSpecificReference": {
+                "source": "PA",
+                "value": "97574b9c-1261-5d5a-9282-ded9abd86166"
+            },
+            "names": [
+                {
+                    "value": "Isabel Arraiza",
+                    "locale": "en_UKROI"
+                }
+            ],
+            "builtFromChild": false
+        },
+        {
+            "alternativeReferences": [
+                {
+                    "source": "PA_LEGACY",
+                    "value": "232090"
+                }
+            ],
+            "sourceSpecificReference": {
+                "source": "PD",
+                "value": "1cd00c5e-0d70-4f3d-89e7-0ee50100575f"
+            },
+            "names": [
+                {
+                    "value": "Isabel Arraiza",
+                    "locale": "en_UKROI"
+                }
+            ],
+            "builtFromChild": false
+        }
+    ],
+    "deletedEntities": [],
+    "aliases": []
+}

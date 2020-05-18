@@ -22,6 +22,9 @@ allprojects {
         maven {
             url centralMirror
         }
+        maven {
+            url pmpRepo
+        }
         mavenCentral()
     }
 }
