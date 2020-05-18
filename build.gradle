@@ -1,0 +1,35 @@
+  
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url skyReleasesMirror
+            }
+            maven {
+                url gradlePluginsMirror
+            }
+            maven {
+                url centralMirror
+            }
+            mavenCentral()
+            jcenter()
+        }
+    }
+    repositories {
+        maven {
+            url skyReleasesMirror
+        }
+        maven {
+            url centralMirror
+        }
+        mavenCentral()
+    }
+}
+
+
+def getCurrentVersion(version) {
+    def currentRevision = "git rev-parse HEAD".execute().text
+    def branch = "git branch -r --contains $currentRevision".execute().text
+    if (branch.contains("origin/master")) return version
+    return currentRevision.trim()
+}
