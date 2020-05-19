@@ -1,9 +1,8 @@
 package com.sky.csc.metadata.ddi
 
-import com.fasterxml.jackson.databind.ObjectMapper
+
 import com.sky.csc.generators.PmpComposites
-import com.sky.pmp.domain.AbstractCompositeEntity
-import com.sky.pmp.domain.CompositeParty
+import com.sky.csc.integrations.PmpDdiOutboundTranslatorInput
 import spock.lang.Specification
 
 class PersonSpec extends Specification {
@@ -13,7 +12,7 @@ class PersonSpec extends Specification {
         def uuid = pmpPartyComposite.getKeyBag().getSourceSpecificReference().getValue()
 
         when: "the party composite is added to the PMP DDI Outbound Translator input queue"
-        sendPmpDdiOutboundTranslatorInput(pmpPartyComposite)
+        PmpDdiOutboundTranslatorInput.sendInputComposite(pmpPartyComposite)
 
         then: "a DDI Person fragment should be created"
         def ddiPersonFragment = getDdiFragmentForKey("PERSON", uuid)
@@ -32,9 +31,5 @@ class PersonSpec extends Specification {
 
     def Object getDdiFragmentForKey(String fragmentType, String uuid) {
         // find a way to wait for the fragment to appear on the kafka topic
-    }
-
-    def sendPmpDdiOutboundTranslatorInput(AbstractCompositeEntity inputComposite) {
-        // find a way to add this to the pmp.outbound.ddi.translator.input.endpoint queue
     }
 }
