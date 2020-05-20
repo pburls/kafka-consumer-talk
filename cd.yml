@@ -1,0 +1,10 @@
+version: 1
+context: csc-dev-tooling
+triggering: master-and-prs
+
+defaultNodes:
+  default: csc-dev-tooling-java11-small-slave
+
+modules:
+  integration:
+    pipelineShape: build-release
