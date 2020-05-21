@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+version 'unspecified'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.kafka:kafka_2.12:2.5.0'
+    implementation 'org.apache.kafka:kafka-clients:2.5.0'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'com.salesforce.kafka.test:kafka-junit4:3.2.1'
+}

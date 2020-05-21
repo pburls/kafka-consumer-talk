@@ -14,5 +14,7 @@ dependencies {
     implementation "com.sky.pmp:pmp-test-utils:$pmpTestUtilsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
+    implementation "com.sky.kaas:kafka-client:0.12.0"
+
     testImplementation 'org.spockframework:spock-core:1.2-groovy-2.5'
 }
