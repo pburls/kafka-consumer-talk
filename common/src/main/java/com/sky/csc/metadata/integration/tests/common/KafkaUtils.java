@@ -9,12 +9,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 public class KafkaUtils {
-    public static <K, V> TopicListener<K, V> createTopicSubscription(final Class<? extends Deserializer<K>> keyDeserializer,
-                                                                         final Class<? extends Deserializer<V>> valueDeserializer,
-                                                                         Properties consumerConfig,
-                                                                         Function<Properties, KafkaConsumer<K, V>> kafkaConsumerFactory,
-                                                                         String topic,
-                                                                         Duration subscriptionTimeout) throws TimeoutException {
+    public static <K, V> TopicListener<K, V> createTopicListener(final Class<? extends Deserializer<K>> keyDeserializer,
+                                                                 final Class<? extends Deserializer<V>> valueDeserializer,
+                                                                 Properties consumerConfig,
+                                                                 Function<Properties, KafkaConsumer<K, V>> kafkaConsumerFactory,
+                                                                 String topic,
+                                                                 Duration subscriptionTimeout) throws TimeoutException {
         TopicListenerImpl listener = new TopicListenerImpl(keyDeserializer, valueDeserializer, consumerConfig, kafkaConsumerFactory, topic);
         listener.subscribeAndAwaitPartitionAssignment(subscriptionTimeout);
         return listener;

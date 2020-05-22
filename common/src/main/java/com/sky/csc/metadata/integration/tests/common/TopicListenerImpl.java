@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 class TopicListenerImpl<K, V> implements TopicListener<K, V> {
@@ -73,8 +74,8 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
     }
 
     @Override
-    public Optional<ConsumerRecord<K, V>> findRecordByKey(final K key, final int maxRetries, final Duration pollDuration) {
-        log.debug("findRecordByKey for key '{}' on topic '{}' started for TopicListener '{}'.", key, this.topic, this.id);
+    public Optional<ConsumerRecord<K, V>> findRecord(final Predicate<ConsumerRecord<K, V>> filterCriteria, final int maxRetries, final Duration pollDuration) {
+        log.debug("findRecord on topic '{}' started for TopicListener '{}'.", this.topic, this.id);
         int retry = 0;
         Optional<ConsumerRecord<K, V>> foundRecord = Optional.empty();
 
@@ -84,12 +85,12 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
             log.debug("Found {} records during last poll.", consumerRecords.count());
             foundRecord = StreamSupport.stream(consumerRecords.spliterator(), false)
                     .peek(record -> log.debug("Processing record with key '{}' at offset '{}' on TopicListener '{}'", record.key() ,record.offset(), this.id))
-                    .filter(record -> record.key().equals(key))
+                    .filter(filterCriteria)
                     .findFirst();
 
             consumer.commitSync();
         }
-        log.debug("findRecordByKey for key '{}' on topic '{}' completed for TopicListener '{}'.", key, this.topic, this.id);
+        log.debug("findRecord on topic '{}' completed for TopicListener '{}'.", this.topic, this.id);
         return foundRecord;
     }
 

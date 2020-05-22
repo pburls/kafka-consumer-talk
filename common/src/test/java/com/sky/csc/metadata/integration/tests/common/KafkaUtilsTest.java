@@ -45,7 +45,7 @@ public class KafkaUtilsTest {
         // and a Consumer connected to the Kafka broker and subscribed to the test topic
         Properties consumerProps = new Properties();
         log.debug("Subscribing to topic '{}'", TEST_TOPIC_NAME);
-        final TopicListener<String, String> topicListener = KafkaUtils.createTopicSubscription(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
+        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
 
         // When the test record is produced to the test topic
         log.debug("Producing test record");
@@ -54,7 +54,7 @@ public class KafkaUtilsTest {
 
         // Then a record is found for the key
         log.debug("Invoking findRecordByKey for key '{}' on topic '{}'", keyToFind, TEST_TOPIC_NAME);
-        final Optional<ConsumerRecord<String, String>> foundRecord = topicListener.findRecordByKey(keyToFind, 10, Duration.ofSeconds(1));
+        final Optional<ConsumerRecord<String, String>> foundRecord = topicListener.findRecord(record -> record.key().equals(keyToFind), 10, Duration.ofSeconds(1));
         log.debug("Received findRecordByKey results");
         Assert.assertTrue(foundRecord.isPresent());
 
@@ -90,7 +90,7 @@ public class KafkaUtilsTest {
         // and a Consumer connected to the Kafka broker and subscribed to the test topic
         Properties consumerProps = new Properties();
         log.debug("Subscribing to topic '{}'", TEST_TOPIC_NAME);
-        final TopicListener<String, String> topicListener = KafkaUtils.createTopicSubscription(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
+        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
 
         // When the test record is produced to the test topic
         log.debug("Producing test record");
@@ -99,7 +99,7 @@ public class KafkaUtilsTest {
 
         // Then a record is found for the key
         log.debug("Invoking findRecordByKey for key '{}' on topic '{}'", keyToFind, TEST_TOPIC_NAME);
-        final Optional<ConsumerRecord<String, String>> foundRecord = topicListener.findRecordByKey(keyToFind, 10, Duration.ofSeconds(1));
+        final Optional<ConsumerRecord<String, String>> foundRecord = topicListener.findRecord(record -> record.key().equals(keyToFind), 10, Duration.ofSeconds(1));
         log.debug("Received findRecordByKey results");
         Assert.assertTrue(foundRecord.isPresent());
 
