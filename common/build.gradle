@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation 'org.apache.kafka:kafka_2.12:2.5.0'
     implementation 'org.apache.kafka:kafka-clients:2.5.0'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.salesforce.kafka.test:kafka-junit4:3.2.1'
