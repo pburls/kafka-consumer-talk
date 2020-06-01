@@ -21,11 +21,14 @@ class PersonSpec extends Specification {
                 .getValue()
         log.debug("PMP Party composite with PMP Reference '${pmpUUID}' and PD Reference '${pdUUID}'")
 
+        and: "a TopicListener for the CSA DDI PERSON persisted topic"
+        def personTopicListener = CsaPersistedTopics.createTopicListener(DdiFragmentType.Person)
+
         when: "the party composite is added to the PMP DDI Outbound Translator input queue"
         PmpDdiOutboundTranslator.sendInputComposite(pmpPartyComposite)
 
         then: "a DDI Person fragment should be created"
-        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(DdiFragmentType.Person, pmpUUID)
+        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, pmpUUID)
         ddiPersonFragment
         //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
 

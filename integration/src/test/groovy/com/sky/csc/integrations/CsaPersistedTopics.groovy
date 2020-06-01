@@ -3,6 +3,7 @@ package com.sky.csc.integrations
 import com.sky.csc.Configuration
 import com.sky.csc.metadata.ddi.DdiFragmentType
 import com.sky.csc.metadata.integration.tests.common.KafkaUtils
+import com.sky.csc.metadata.integration.tests.common.TopicListener
 import com.sky.kaas.factory.ClientFactory
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -22,7 +23,7 @@ class CsaPersistedTopics {
         return new ClientFactory<String, String>().createKafkaConsumer(consumerConfig)
     };
 
-    static addKafkaClientSecurityConfig(Properties clientProps) {
+    private static addKafkaClientSecurityConfig(Properties clientProps) {
         def truststoreResourceURL = CsaPersistedTopics.class.getResource(Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.truststoreResourceLocation)
         def truststoreLocation = Paths.get(truststoreResourceURL.toURI()).toFile();
         def keystoreResourceURL = CsaPersistedTopics.class.getResource(Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.keystoreResourceLocation)
@@ -35,33 +36,35 @@ class CsaPersistedTopics {
         clientProps.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.password)
     }
 
-    static Optional<ConsumerRecord<String, String>> findKeyOnKafkaTopic(String keyToFind, String topicName, Duration subscriptionTimeout, int maxPolls, Duration pollDurationTimeout) {
+    static TopicListener<String, String> createTopicListener(DdiFragmentType fragmentType) {
+        if (!Configuration.ddiFragmentTypeToTopicMap.containsKey(fragmentType.name())) {
+            throw new IllegalArgumentException("Topic mapping for fragmentType '${fragmentType}' has not yet been configured")
+        }
+
+        def topicName = Configuration.ddiFragmentTypeToTopicMap[fragmentType.name()]
         def consumerGroupIdPrefix = Configuration.CsaPersistedTopicsConsumerConfig.groupIdPrefix
+        def subscriptionTimeout = Configuration.CsaPersistedTopicsConsumerConfig.topicSubscriptionTimeout
 
         def consumerProps = new Properties();
         consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.bootstrapServers)
         addKafkaClientSecurityConfig(consumerProps)
 
-        def topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerGroupIdPrefix, consumerProps, kafkaConsumerFactory, topicName, subscriptionTimeout);
-        return topicListener.findRecord({ record -> (record.key() == keyToFind) }, maxPolls, pollDurationTimeout);
+        return KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerGroupIdPrefix, consumerProps, kafkaConsumerFactory, topicName, subscriptionTimeout)
     }
 
-    static Object getDdiFragmentForKey(DdiFragmentType fragmentType, String uuid) {
+    static Object getDdiFragmentForKey(TopicListener<String, String> topicListener, DdiFragmentType fragmentType, String uuid) {
         if (!Configuration.ddiFragmentTypeToTopicMap.containsKey(fragmentType.name())) {
             throw new IllegalArgumentException("Topic mapping for fragmentType '${fragmentType}' has not yet been configured")
         }
         def topicName = Configuration.ddiFragmentTypeToTopicMap[fragmentType.name()]
-        def keyToFind = "uk:DDI:${fragmentType}:${uuid}"
+        def keyToFind = "uk:DDI:${fragmentType.name()}:${uuid}"
         log.debug("Searching for key '${keyToFind}' on topic '${topicName}'.")
 
         // wait for the fragment to appear on the kafka topic
-        def findResult = findKeyOnKafkaTopic(
-                keyToFind,
-                topicName,
-                Configuration.CsaPersistedTopicsConsumerConfig.topicSubscriptionTimeout,
-                Configuration.CsaPersistedTopicsConsumerConfig.findMaxPollAttempts,
-                Configuration.CsaPersistedTopicsConsumerConfig.findPollTimeout
-        )
+        def findCriteria = { record -> (record.key() == keyToFind) }
+        def maxPolls = Configuration.CsaPersistedTopicsConsumerConfig.findMaxPollAttempts
+        def pollDurationTimeout = Configuration.CsaPersistedTopicsConsumerConfig.findPollTimeout
+        def findResult = topicListener.findRecord(findCriteria, maxPolls, pollDurationTimeout)
 
         if(findResult.isPresent()) {
             return findResult.get()

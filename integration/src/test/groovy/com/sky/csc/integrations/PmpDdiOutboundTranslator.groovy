@@ -10,15 +10,18 @@ import com.sky.pmp.testutils.activemq.ActiveMqTestRunner
 import com.sky.pmp.testutils.activemq.Headers
 import com.sky.pmp.testutils.activemq.TestEndState
 import com.sky.pmp.testutils.activemq.TestMessage
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import static com.sky.pmp.testutils.activemq.ActiveMqConfig.DestinationType.QUEUE
 
 class PmpDdiOutboundTranslator {
+    static final Logger log = LoggerFactory.getLogger(PmpDdiOutboundTranslator.class)
     static final objectMapper = new ObjectMapper()
 
     static sendInputComposite(AbstractCompositeEntity inputComposite) {
-        // find a way to add this to the pmp.outbound.ddi.translator.input.endpoint queue
         def result = sendMessage(inputComposite)
+        log.debug("Sent ${inputComposite.getClass().toString()} input to PMP DDI Outbound Translator")
     }
 
     static sendMessage(AbstractCompositeEntity inputComposite) throws Exception {
