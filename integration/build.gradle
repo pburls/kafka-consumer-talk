@@ -1,13 +1,51 @@
 plugins {
     id 'groovy'
+    id "org.openapi.generator" version "4.3.1"
 }
+
+import buildTools.CheckoutSpecFileCommands
 
 ext {
     pmpModelVersion = '38.24.3'
     pmpTestUtilsVersion = '27.8.0'
     springJmsVersion = '4.3.25.RELEASE'
     jacksonVersion = '2.10.0'
+
+    metadataDdiSchemasSpecPath = "specs/shared-schemas/metadata/Metadata-DDI.yaml"
+    metadataDdiSchemasVersion = 'v0.2'
+    schemaModelsDir = file("${project.buildDir}/generated-sources/schema-models")
 }
+
+task checkoutMetadataDDISpec(type: CheckoutSpecFileCommands) {
+    spec = metadataDdiSchemasSpecPath
+    tag = "Metadata-DDI-schemas-$metadataDdiSchemasVersion"
+    outputFile = file("${project.rootProject.rootDir}/$spec")
+}
+
+task generateDDIModels(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask, dependsOn: checkoutMetadataDDISpec) {
+    validateSpec = true
+    generatorName = "spring"
+    inputSpec = "${rootProject.projectDir}/${metadataDdiSchemasSpecPath}".toString()
+    outputDir = schemaModelsDir.toString()
+    modelPackage = 'com.sky.csc.metadata.ddi.model.generated'
+    systemProperties = [
+            models : ""
+    ]
+    configOptions = [
+            hideGenerationTimestamp: 'true',
+            dateLibrary            : 'java8'
+    ]
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += schemaModelsDir
+        }
+    }
+}
+
+compileJava.dependsOn tasks.generateDDIModels
 
 dependencies {
     implementation project(":common")

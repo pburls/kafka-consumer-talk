@@ -6,3 +6,6 @@ build
 
 # Intellij Idea
 .idea
+
+# Ignore checked-out specs
+/specs
