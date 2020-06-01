@@ -1,7 +1,9 @@
 package com.sky.csc.integrations
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.sky.csc.Configuration
 import com.sky.csc.metadata.ddi.DdiFragmentType
+import com.sky.csc.metadata.ddi.model.Person
 import com.sky.csc.metadata.integration.tests.common.KafkaUtils
 import com.sky.csc.metadata.integration.tests.common.TopicListener
 import com.sky.kaas.factory.ClientFactory
@@ -17,6 +19,7 @@ import java.time.Duration
 
 class CsaPersistedTopics {
     static final Logger log = LoggerFactory.getLogger(CsaPersistedTopics.class);
+    static final objectMapper = new ObjectMapper()
 
     static final kafkaConsumerFactory = { Properties consumerConfig ->
         log.debug("Creating Kafka Consumer")
@@ -37,11 +40,11 @@ class CsaPersistedTopics {
     }
 
     static TopicListener<String, String> createTopicListener(DdiFragmentType fragmentType) {
-        if (!Configuration.ddiFragmentTypeToTopicMap.containsKey(fragmentType.name())) {
+        if (!Configuration.ddiFragmentTypeConfigMap.containsKey(fragmentType.name())) {
             throw new IllegalArgumentException("Topic mapping for fragmentType '${fragmentType}' has not yet been configured")
         }
 
-        def topicName = Configuration.ddiFragmentTypeToTopicMap[fragmentType.name()]
+        def topicName = Configuration.ddiFragmentTypeConfigMap[fragmentType.name()].topicName
         def consumerGroupIdPrefix = Configuration.CsaPersistedTopicsConsumerConfig.groupIdPrefix
         def subscriptionTimeout = Configuration.CsaPersistedTopicsConsumerConfig.topicSubscriptionTimeout
 
@@ -49,14 +52,14 @@ class CsaPersistedTopics {
         consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.bootstrapServers)
         addKafkaClientSecurityConfig(consumerProps)
 
-        return KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerGroupIdPrefix, consumerProps, kafkaConsumerFactory, topicName, subscriptionTimeout)
+        return KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerGroupIdPrefix, consumerProps, kafkaConsumerFactory, topicName as String, subscriptionTimeout)
     }
 
     static Object getDdiFragmentForKey(TopicListener<String, String> topicListener, DdiFragmentType fragmentType, String uuid) {
-        if (!Configuration.ddiFragmentTypeToTopicMap.containsKey(fragmentType.name())) {
+        if (!Configuration.ddiFragmentTypeConfigMap.containsKey(fragmentType.name())) {
             throw new IllegalArgumentException("Topic mapping for fragmentType '${fragmentType}' has not yet been configured")
         }
-        def topicName = Configuration.ddiFragmentTypeToTopicMap[fragmentType.name()]
+        def topicName = Configuration.ddiFragmentTypeConfigMap[fragmentType.name()].topicName
         def keyToFind = "uk:DDI:${fragmentType.name()}:${uuid}"
         log.debug("Searching for key '${keyToFind}' on topic '${topicName}'.")
 
@@ -67,7 +70,9 @@ class CsaPersistedTopics {
         def findResult = topicListener.findRecord(findCriteria, maxPolls, pollDurationTimeout)
 
         if(findResult.isPresent()) {
-            return findResult.get()
+            def foundKafkaRecord = findResult.get()
+            def modelClass = Configuration.ddiFragmentTypeConfigMap[fragmentType.name()].modelClass
+            return objectMapper.readValue(foundKafkaRecord.value(), modelClass)
         } else {
             log.error("Failed to find key '${keyToFind}' on topic '${topicName}' after ${Configuration.CsaPersistedTopicsConsumerConfig.findMaxPollAttempts}x${Configuration.CsaPersistedTopicsConsumerConfig.findPollTimeout} poll attempts.")
             return null

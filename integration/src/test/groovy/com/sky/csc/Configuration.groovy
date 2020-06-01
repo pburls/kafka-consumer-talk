@@ -1,6 +1,6 @@
 package com.sky.csc
 
-import com.sky.csc.metadata.ddi.DdiFragmentType
+import com.sky.csc.metadata.ddi.model.Person
 
 import java.time.Duration
 
@@ -27,7 +27,10 @@ class Configuration {
         }
     }
 
-    static final ddiFragmentTypeToTopicMap = [
-            "Person": "sky.csc.int.ddi.person"
+    static final ddiFragmentTypeConfigMap = [
+            Person: [
+                    topicName: "sky.csc.int.ddi.person",
+                    modelClass: Person.class
+            ]
     ]
 }

@@ -68,10 +68,6 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
             if (!partitionAssignmentListener.isPartitionsAssigned()) throw e;
         }
         log.debug("Subscription and partition assignment finished.");
-        consumer.assignment().forEach(topicPartition -> {
-            long offset = consumer.position(topicPartition);
-            log.debug("Starting offset topic '{}' partition '{}' is: {}", topicPartition.topic(), topicPartition.partition(), offset);
-        });
     }
 
     @Override
@@ -120,9 +116,11 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
 
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' on topic '{}' assigned for TopicListener '{}'.", topicPartition.partition(), topicPartition.topic(), this.topicListener.getConsumerGroupId()));
-            this.isPartitionsAssigned = true;
-            this.topicListener.consumer.wakeup();
+            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' at offset {} on topic '{}' assigned for TopicListener '{}'.", topicPartition.partition(), this.topicListener.consumer.position(topicPartition), topicPartition.topic(), this.topicListener.getConsumerGroupId()));
+            if (!this.isPartitionsAssigned) {
+                this.isPartitionsAssigned = true;
+                this.topicListener.consumer.wakeup();
+            }
         }
     }
 }

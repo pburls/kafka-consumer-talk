@@ -16,9 +16,7 @@ class PersonSpec extends Specification {
         given: "A PMP Party composite"
         def pmpPartyComposite = PmpComposites.generatePartyComposite()
         def pmpUUID = pmpPartyComposite.getKeyBag().sourceSpecificReferenceValue()
-        def pdUUID = pmpPartyComposite.getKeyBag().getAlternativeReferences()
-                .find({reference -> reference.source == Source.PD})
-                .getValue()
+        def pdUUID = pmpPartyComposite.getKeyBag().getAlternativeReferences().find({reference -> reference.source == Source.PD}).getValue()
         log.debug("PMP Party composite with PMP Reference '${pmpUUID}' and PD Reference '${pdUUID}'")
 
         and: "a TopicListener for the CSA DDI PERSON persisted topic"
@@ -28,12 +26,12 @@ class PersonSpec extends Specification {
         PmpDdiOutboundTranslator.sendInputComposite(pmpPartyComposite)
 
         then: "a DDI Person fragment should be created"
-        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, pmpUUID)
+        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, pdUUID)
         ddiPersonFragment
         //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
 
         and: "a Merling Person object should be created"
-        def merlinPersonObject //= getMerlingObject("Person", pmpUUID)
+        def merlinPersonObject = getMerlingObject("Person", pdUUID)
         merlinPersonObject
         //assert all the values on the merlinPersonObject are equal to the pmpPartyComposite's values
     }
