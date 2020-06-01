@@ -1,4 +1,4 @@
 rootProject.name = 'csc-e2e-metadata-int-tests'
 include ':integration'
-include 'common'
+include ':common'
 

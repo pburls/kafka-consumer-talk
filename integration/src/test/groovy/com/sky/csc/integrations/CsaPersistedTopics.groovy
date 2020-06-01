@@ -1,32 +1,73 @@
 package com.sky.csc.integrations
 
 import com.sky.csc.Configuration
+import com.sky.csc.metadata.ddi.DdiFragmentType
+import com.sky.csc.metadata.integration.tests.common.KafkaUtils
 import com.sky.kaas.factory.ClientFactory
-import org.apache.kafka.clients.consumer.Consumer
-import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import java.nio.file.Paths
+import java.time.Duration
 
 class CsaPersistedTopics {
-    def readkafkaTopic() {
-        Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        Consumer<String, String> consumer = new ClientFactory<String, String>().createKafkaConsumer()
+    static final Logger log = LoggerFactory.getLogger(CsaPersistedTopics.class);
 
-        consumer.subscribe(topics)
+    static final kafkaConsumerFactory = { Properties consumerConfig ->
+        log.debug("Creating Kafka Consumer")
+        return new ClientFactory<String, String>().createKafkaConsumer(consumerConfig)
+    };
 
-        while (true) {
-            def consumerRecords = consumer.poll(1000)
+    static addKafkaClientSecurityConfig(Properties clientProps) {
+        def truststoreResourceURL = CsaPersistedTopics.class.getResource(Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.truststoreResourceLocation)
+        def truststoreLocation = Paths.get(truststoreResourceURL.toURI()).toFile();
+        def keystoreResourceURL = CsaPersistedTopics.class.getResource(Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.keystoreResourceLocation)
+        def keystoreLocation = Paths.get(keystoreResourceURL.toURI()).toFile();
 
-            consumerRecords.each{ record ->
-                println record.key()
-                println record.value()
-            }
+        clientProps.put("security.protocol", Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.securityProtocol)
+        clientProps.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation.toString())
+        clientProps.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.password)
+        clientProps.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keystoreLocation.toString())
+        clientProps.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.ClientSecurity.password)
+    }
 
-            consumer.commitAsync();
+    static Optional<ConsumerRecord<String, String>> findKeyOnKafkaTopic(String keyToFind, String topicName, Duration subscriptionTimeout, int maxPolls, Duration pollDurationTimeout) {
+        def consumerGroupIdPrefix = Configuration.CsaPersistedTopicsConsumerConfig.groupIdPrefix
+
+        def consumerProps = new Properties();
+        consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, Configuration.CsaPersistedTopicsConsumerConfig.bootstrapServers)
+        addKafkaClientSecurityConfig(consumerProps)
+
+        def topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerGroupIdPrefix, consumerProps, kafkaConsumerFactory, topicName, subscriptionTimeout);
+        return topicListener.findRecord({ record -> (record.key() == keyToFind) }, maxPolls, pollDurationTimeout);
+    }
+
+    static Object getDdiFragmentForKey(DdiFragmentType fragmentType, String uuid) {
+        if (!Configuration.ddiFragmentTypeToTopicMap.containsKey(fragmentType.name())) {
+            throw new IllegalArgumentException("Topic mapping for fragmentType '${fragmentType}' has not yet been configured")
         }
-        consumer.close();
+        def topicName = Configuration.ddiFragmentTypeToTopicMap[fragmentType.name()]
+        def keyToFind = "uk:DDI:${fragmentType}:${uuid}"
+        log.debug("Searching for key '${keyToFind}' on topic '${topicName}'.")
+
+        // wait for the fragment to appear on the kafka topic
+        def findResult = findKeyOnKafkaTopic(
+                keyToFind,
+                topicName,
+                Configuration.CsaPersistedTopicsConsumerConfig.topicSubscriptionTimeout,
+                Configuration.CsaPersistedTopicsConsumerConfig.findMaxPollAttempts,
+                Configuration.CsaPersistedTopicsConsumerConfig.findPollTimeout
+        )
+
+        if(findResult.isPresent()) {
+            return findResult.get()
+        } else {
+            log.error("Failed to find key '${keyToFind}' on topic '${topicName}' after ${Configuration.CsaPersistedTopicsConsumerConfig.findMaxPollAttempts}x${Configuration.CsaPersistedTopicsConsumerConfig.findPollTimeout} poll attempts.")
+            return null
+        }
     }
 }

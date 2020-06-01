@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface TopicListener<K, V> {
-    String getId();
+    String getConsumerGroupId();
 
     String getTopic();
 

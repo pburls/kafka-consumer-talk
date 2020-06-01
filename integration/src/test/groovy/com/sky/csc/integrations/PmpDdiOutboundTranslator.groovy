@@ -13,7 +13,7 @@ import com.sky.pmp.testutils.activemq.TestMessage
 
 import static com.sky.pmp.testutils.activemq.ActiveMqConfig.DestinationType.QUEUE
 
-class PmpDdiOutboundTranslatorInput {
+class PmpDdiOutboundTranslator {
     static final objectMapper = new ObjectMapper()
 
     static sendInputComposite(AbstractCompositeEntity inputComposite) {

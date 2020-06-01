@@ -18,6 +18,7 @@ import java.util.Properties;
 
 public class KafkaUtilsTest {
     private static final Logger log = LoggerFactory.getLogger(KafkaUtilsTest.class);
+    static final String GROUP_ID_PREFIX = "kafka-utils-test";
     static final String TEST_TOPIC_NAME = "some-topic";
 
     @ClassRule
@@ -45,7 +46,7 @@ public class KafkaUtilsTest {
         // and a Consumer connected to the Kafka broker and subscribed to the test topic
         Properties consumerProps = new Properties();
         log.debug("Subscribing to topic '{}'", TEST_TOPIC_NAME);
-        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
+        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, GROUP_ID_PREFIX, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
 
         // When the test record is produced to the test topic
         log.debug("Producing test record");
@@ -90,7 +91,7 @@ public class KafkaUtilsTest {
         // and a Consumer connected to the Kafka broker and subscribed to the test topic
         Properties consumerProps = new Properties();
         log.debug("Subscribing to topic '{}'", TEST_TOPIC_NAME);
-        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
+        final TopicListener<String, String> topicListener = KafkaUtils.createTopicListener(StringDeserializer.class, StringDeserializer.class, GROUP_ID_PREFIX, consumerProps, KafkaUtilsTest::consumerFactory, TEST_TOPIC_NAME, Duration.ofSeconds(10));
 
         // When the test record is produced to the test topic
         log.debug("Producing test record");

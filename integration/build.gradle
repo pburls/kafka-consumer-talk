@@ -5,13 +5,17 @@ plugins {
 ext {
     pmpModelVersion = '38.24.3'
     pmpTestUtilsVersion = '27.8.0'
+    springJmsVersion = '4.3.25.RELEASE'
     jacksonVersion = '2.10.0'
 }
 
 dependencies {
+    implementation project(":common")
+
     implementation 'org.codehaus.groovy:groovy-all:2.5.4'
     implementation "com.sky.pmp:pmp-model:$pmpModelVersion"
     implementation "com.sky.pmp:pmp-test-utils:$pmpTestUtilsVersion"
+    implementation "org.springframework:spring-jms:$springJmsVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
     implementation "com.sky.kaas:kafka-client:0.12.0"

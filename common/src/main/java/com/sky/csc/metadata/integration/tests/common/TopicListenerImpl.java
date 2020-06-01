@@ -21,22 +21,23 @@ import java.util.stream.StreamSupport;
 class TopicListenerImpl<K, V> implements TopicListener<K, V> {
     private static final Logger log = LoggerFactory.getLogger(TopicListenerImpl.class);
 
-    private final String id;
+    private final String consumerGroupId;
     private final KafkaConsumer<K, V> consumer;
     private final String topic;
 
     TopicListenerImpl(final Class<? extends Deserializer<K>> keyDeserializer,
                       final Class<? extends Deserializer<V>> valueDeserializer,
+                      String consumerGroupIdPrefix,
                       Properties consumerConfig,
                       Function<Properties, KafkaConsumer<K, V>> kafkaConsumerFactory,
                       String topic) {
-        this.id = Instant.now().toString();
+        this.consumerGroupId = consumerGroupIdPrefix + ".topic-listener-" + Instant.now().toString();
         this.topic = topic;
 
         if (consumerConfig == null) {
             consumerConfig = new Properties();
         }
-        consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "test-tl-group-" + this.id);
+        consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, this.consumerGroupId);
         consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
         consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
@@ -45,8 +46,8 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
     }
 
     @Override
-    public String getId() {
-        return this.id;
+    public String getConsumerGroupId() {
+        return this.consumerGroupId;
     }
 
     @Override
@@ -75,7 +76,7 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
 
     @Override
     public Optional<ConsumerRecord<K, V>> findRecord(final Predicate<ConsumerRecord<K, V>> filterCriteria, final int maxRetries, final Duration pollDuration) {
-        log.debug("findRecord on topic '{}' started for TopicListener '{}'.", this.topic, this.id);
+        log.debug("findRecord on topic '{}' started for TopicListener '{}'.", this.topic, this.consumerGroupId);
         int retry = 0;
         Optional<ConsumerRecord<K, V>> foundRecord = Optional.empty();
 
@@ -84,20 +85,20 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
             ConsumerRecords<K, V> consumerRecords = consumer.poll(pollDuration);
             log.debug("Found {} records during last poll.", consumerRecords.count());
             foundRecord = StreamSupport.stream(consumerRecords.spliterator(), false)
-                    .peek(record -> log.debug("Processing record with key '{}' at offset '{}' on TopicListener '{}'", record.key() ,record.offset(), this.id))
+                    .peek(record -> log.debug("Processing record with key '{}' at offset '{}' on TopicListener '{}'", record.key() ,record.offset(), this.consumerGroupId))
                     .filter(filterCriteria)
                     .findFirst();
 
             consumer.commitSync();
         }
-        log.debug("findRecord on topic '{}' completed for TopicListener '{}'.", this.topic, this.id);
+        log.debug("findRecord on topic '{}' completed for TopicListener '{}'.", this.topic, this.consumerGroupId);
         return foundRecord;
     }
 
     @Override
     public void close() {
         consumer.close();
-        log.debug("TopicListener '{}' closed.", this.id);
+        log.debug("TopicListener '{}' closed.", this.consumerGroupId);
     }
 
     class PartitionAssignmentListener implements ConsumerRebalanceListener {
@@ -114,12 +115,12 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
 
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' on topic '{}' revoked for TopicListener '{}'.", topicPartition.partition(), topicPartition.topic(), this.topicListener.getId()));
+            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' on topic '{}' revoked for TopicListener '{}'.", topicPartition.partition(), topicPartition.topic(), this.topicListener.getConsumerGroupId()));
         }
 
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' on topic '{}' assigned for TopicListener '{}'.", topicPartition.partition(), topicPartition.topic(), this.topicListener.getId()));
+            partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' on topic '{}' assigned for TopicListener '{}'.", topicPartition.partition(), topicPartition.topic(), this.topicListener.getConsumerGroupId()));
             this.isPartitionsAssigned = true;
             this.topicListener.consumer.wakeup();
         }
