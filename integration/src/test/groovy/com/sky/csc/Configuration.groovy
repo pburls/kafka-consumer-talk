@@ -33,4 +33,9 @@ class Configuration {
                     modelClass: Person.class
             ]
     ]
+
+    class MerlinMockConfig {
+        static final hostUrl = "astrolabe-merlin-mock-int.dev.cosmic.sky"
+        static final requestsEndpoint = "/requests"
+    }
 }

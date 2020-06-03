@@ -3,19 +3,16 @@ package com.sky.csc.integrations
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sky.csc.Configuration
 import com.sky.csc.metadata.ddi.DdiFragmentType
-import com.sky.csc.metadata.ddi.model.Person
 import com.sky.csc.metadata.integration.tests.common.KafkaUtils
 import com.sky.csc.metadata.integration.tests.common.TopicListener
 import com.sky.kaas.factory.ClientFactory
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.nio.file.Paths
-import java.time.Duration
 
 class CsaPersistedTopics {
     static final Logger log = LoggerFactory.getLogger(CsaPersistedTopics.class);

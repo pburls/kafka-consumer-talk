@@ -8,7 +8,6 @@ import com.sky.pmp.domain.OperationType
 import com.sky.pmp.testutils.activemq.ActiveMqConfig
 import com.sky.pmp.testutils.activemq.ActiveMqTestRunner
 import com.sky.pmp.testutils.activemq.Headers
-import com.sky.pmp.testutils.activemq.TestEndState
 import com.sky.pmp.testutils.activemq.TestMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

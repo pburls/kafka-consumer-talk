@@ -3,6 +3,7 @@ package com.sky.csc.metadata.ddi
 
 import com.sky.csc.generators.PmpComposites
 import com.sky.csc.integrations.CsaPersistedTopics
+import com.sky.csc.integrations.MerlinMock
 import com.sky.csc.integrations.PmpDdiOutboundTranslator
 import com.sky.pmp.domain.Source
 import org.slf4j.Logger
@@ -15,9 +16,8 @@ class PersonSpec extends Specification {
     def "PMP Party composite to DDI PERSON fragment to Merlin Person object"() {
         given: "A PMP Party composite"
         def pmpPartyComposite = PmpComposites.generatePartyComposite()
-        def pmpUUID = pmpPartyComposite.getKeyBag().sourceSpecificReferenceValue()
-        def pdUUID = pmpPartyComposite.getKeyBag().getAlternativeReferences().find({reference -> reference.source == Source.PD}).getValue()
-        log.debug("PMP Party composite with PMP Reference '${pmpUUID}' and PD Reference '${pdUUID}'")
+        def entityUUID = pmpPartyComposite.getKeyBag().getAlternativeReferences().find({reference -> reference.source == Source.PD}).getValue()
+        log.debug("PMP Party composite with PD Reference '${entityUUID}'")
 
         and: "a TopicListener for the CSA DDI PERSON persisted topic"
         def personTopicListener = CsaPersistedTopics.createTopicListener(DdiFragmentType.Person)
@@ -26,18 +26,13 @@ class PersonSpec extends Specification {
         PmpDdiOutboundTranslator.sendInputComposite(pmpPartyComposite)
 
         then: "a DDI Person fragment should be created"
-        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, pdUUID)
+        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, entityUUID)
         ddiPersonFragment
         //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
 
-        and: "a Merling Person object should be created"
-        def merlinPersonObject = getMerlingObject("Person", pdUUID)
+        and: "a Merlin Person object should be created"
+        def merlinPersonObject = MerlinMock.getMerlingObject(DdiFragmentType.Person, entityUUID)
         merlinPersonObject
         //assert all the values on the merlinPersonObject are equal to the pmpPartyComposite's values
-    }
-
-    def Object getMerlingObject(String objectType, String uuid) {
-        // find a way to get any created merlin objects from the Merlin stub/mock
-        return null;
     }
 }
