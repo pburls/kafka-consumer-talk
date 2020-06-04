@@ -5,4 +5,5 @@ project_dir="${script_dir}/../"
 
 cd $project_dir
 
-../gradlew check
+# run the e2e integration tests
+../gradlew :integration:check
