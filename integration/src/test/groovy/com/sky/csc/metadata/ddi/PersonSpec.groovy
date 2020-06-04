@@ -31,7 +31,7 @@ class PersonSpec extends Specification {
         //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
 
         and: "a Merlin Person object should be created"
-        def merlinPersonObject = MerlinMock.getMerlingObject(DdiFragmentType.Person, entityUUID)
+        def merlinPersonObject = MerlinMock.getMerlinObject(DdiFragmentType.Person, entityUUID)
         merlinPersonObject
         //assert all the values on the merlinPersonObject are equal to the pmpPartyComposite's values
     }

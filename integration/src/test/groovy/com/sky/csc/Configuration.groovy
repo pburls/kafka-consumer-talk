@@ -35,7 +35,7 @@ class Configuration {
     ]
 
     class MerlinMockConfig {
-        static final hostUrl = "astrolabe-merlin-mock-int.dev.cosmic.sky"
+        static final hostUrl = "http://astrolabe-merlin-mock-int.dev.cosmic.sky"
         static final requestsEndpoint = "/requests"
     }
 }
