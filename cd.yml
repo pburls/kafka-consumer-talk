@@ -10,7 +10,7 @@ modules:
     pipelineShape: simple
     htmlReports:
       - name: E2E Integration Tests
-        directory: build/reports/tests/test
+        directory: integration/build/reports/tests/test
         files: ['index.html']
     cronTriggers:
       main: 'H 7-19 * * 1-5'
