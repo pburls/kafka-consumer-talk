@@ -8,3 +8,5 @@ defaultNodes:
 modules:
   integration:
     pipelineShape: simple
+    cronTriggers:
+      main: 'H 7-19 * * 1-5'
