@@ -16,7 +16,7 @@ class PersonSpec extends Specification {
     def "PMP Party composite to DDI PERSON fragment to Merlin Person object"() {
         given: "A PMP Party composite"
         def pmpPartyComposite = PmpComposites.generatePartyComposite()
-        def entityUUID = pmpPartyComposite.getKeyBag().getAlternativeReferences().find({reference -> reference.source == Source.PD}).getValue()
+        def entityUUID = PmpComposites.getEntityUuidFromComposite(pmpPartyComposite)
         log.debug("PMP Party composite with PD Reference '${entityUUID}'")
 
         and: "a TopicListener for the CSA DDI PERSON persisted topic"
