@@ -22,25 +22,25 @@ class PmpComposites {
     }
 
     private static getPmpCompositeTemplateJson(String templateFileName) {
-        def resourceFilePath = "/pmp-composites/${templateFileName}"
-        def pmpResourceFileUrl = this.getClass().getResource(resourceFilePath)
+        def resourceFilePath = "pmp-composites/${templateFileName}"
+        def pmpResourceFileUrl = this.getClassLoader().getResource(resourceFilePath)
         if (!pmpResourceFileUrl) {
-            logClassPathFiles()
+            //logClassPathFiles()
             throw new RuntimeException("Unable to find resource file with path '${resourceFilePath}'")
         }
 
         return pmpResourceFileUrl.text
     }
 
-    private static logClassPathFiles() {
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader)cl).getURLs();
-
-        System.out.println("Listing class path files:")
-        for(URL url: urls){
-            System.out.println(url.getFile());
-        }
-    }
+//    private static logClassPathFiles() {
+//        ClassLoader cl = ClassLoader.getSystemClassLoader();
+//        URL[] urls = ((URLClassLoader)cl).getURLs();
+//
+//        System.out.println("Listing class path files:")
+//        for(URL url: urls){
+//            System.out.println(url.getFile());
+//        }
+//    }
 
     private static String replaceUuidTokens(String pmpCompositeJson) {
         def tokenRegex = "(<new-uuid-(.)>)"
