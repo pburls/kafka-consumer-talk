@@ -7,8 +7,8 @@ import java.time.Duration
 class Configuration {
     class PmpDdiOutboundTranslatorInputConfig {
         static final brokerUrl = "tcp://devintpmp.slu.bskyb.com:41616"
-        static final brokerUsername = System.getenv("pmp.activemq.broker.username")
-        static final brokerPassword = System.getenv("pmp.activemq.broker.password")
+        static final brokerUsername = getEnvironmentVariable("pmp.activemq.broker.username")
+        static final brokerPassword = getEnvironmentVariable("pmp.activemq.broker.password")
         static final queueName = "Consumer.OutboundDdi.VirtualTopic.pmp.output"
     }
 
@@ -23,7 +23,7 @@ class Configuration {
             static final securityProtocol = "SSL"
             static final truststoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.truststore.jks"
             static final keystoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.keystore.jks"
-            static final password = System.getenv("csa.kafka.ssl.password")
+            static final password = getEnvironmentVariable("csa.kafka.ssl.password")
         }
     }
 
@@ -37,5 +37,12 @@ class Configuration {
     class MerlinMockConfig {
         static final hostUrl = "http://astrolabe-merlin-mock-int.dev.cosmic.sky"
         static final requestsEndpoint = "/requests"
+    }
+
+    private static getEnvironmentVariable(name) {
+        if (!System.getenv().containsKey(name)) {
+            throw new RuntimeException("Configuration Environment Variable '${name}' is not set.")
+        }
+        return System.getenv(name)
     }
 }
