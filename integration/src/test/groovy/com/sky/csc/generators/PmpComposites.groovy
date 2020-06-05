@@ -36,9 +36,9 @@ class PmpComposites {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         URL[] urls = ((URLClassLoader)cl).getURLs();
 
-        log.debug("Listing class path files:")
+        System.out.println("Listing class path files:")
         for(URL url: urls){
-            log.debug(url.getFile());
+            System.out.println(url.getFile());
         }
     }
 
