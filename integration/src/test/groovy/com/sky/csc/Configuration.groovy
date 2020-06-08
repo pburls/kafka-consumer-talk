@@ -6,10 +6,10 @@ import java.time.Duration
 
 class Configuration {
     class PmpDdiOutboundTranslatorInputConfig {
-        static final brokerUrl = "tcp://devintpmp.slu.bskyb.com:41616"
-        static final brokerUsername = getEnvironmentVariable("pmp.activemq.broker.username")
-        static final brokerPassword = getEnvironmentVariable("pmp.activemq.broker.password")
-        static final queueName = "Consumer.OutboundDdi.VirtualTopic.pmp.output"
+        static final brokerUrl = "tcp://vm009075.bskyb.com:41616"
+        static final brokerUsername = getEnvironmentVariable("PMP_DEV5_AMQ_USERNAME")
+        static final brokerPassword = getEnvironmentVariable("PMP_DEV5_AMQ_PASSWORD")
+        static final queueName = "Consumer.OutboundDdi.e2e.VirtualTopic.pmp.output"
     }
 
     class CsaPersistedTopicsConsumerConfig {
@@ -23,7 +23,7 @@ class Configuration {
             static final securityProtocol = "SSL"
             static final truststoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.truststore.jks"
             static final keystoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.keystore.jks"
-            static final password = getEnvironmentVariable("csa.kafka.ssl.password")
+            static final password = getEnvironmentVariable("CSP_DEV_KAFKA_SSL_PASSWORD")
         }
     }
 
