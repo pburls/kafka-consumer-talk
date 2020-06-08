@@ -7,8 +7,8 @@ import java.time.Duration
 class Configuration {
     class PmpDdiOutboundTranslatorInputConfig {
         static final brokerUrl = "tcp://vm009075.bskyb.com:41616"
-        static final brokerUsername = "admin"
-        static final brokerPassword = "admin"
+        static final brokerUsername = getEnvironmentVariable("admin")
+        static final brokerPassword = getEnvironmentVariable("admin")
         static final queueName = "Consumer.OutboundDdi.e2e.VirtualTopic.pmp.output"
     }
 
@@ -23,7 +23,7 @@ class Configuration {
             static final securityProtocol = "SSL"
             static final truststoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.truststore.jks"
             static final keystoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.keystore.jks"
-            static final password = "uTaP/JSOPP/uSpE9"
+            static final password = getEnvironmentVariable("uTaP/JSOPP/uSpE9")
         }
     }
 
