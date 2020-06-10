@@ -48,6 +48,10 @@ sourceSets {
 
 compileJava.dependsOn tasks.generateDDIModels
 
+test {
+    reports.junitXml.destination = file("${project.buildDir}/test-results/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
+}
+
 dependencies {
     implementation project(":common")
 
