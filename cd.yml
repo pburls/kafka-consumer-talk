@@ -9,7 +9,7 @@ modules:
   integration:
     pipelineShape: simple
     htmlReports:
-      - name: E2E Integration Tests
+      - name: CSC Metadata Integration Tests
         directory: integration/build/reports/tests/test
         files: ['index.html']
     cronTriggers:
