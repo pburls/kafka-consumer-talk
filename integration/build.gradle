@@ -48,8 +48,34 @@ sourceSets {
 
 compileJava.dependsOn tasks.generateDDIModels
 
+// DDI only test tasks
+task testDdi(type: Test) {
+    group = 'verification'
+    reports.junitXml.destination = file("${project.buildDir}/test-results/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
+
+    useJUnit {
+        includeCategories 'com.sky.csc.categories.DDI'
+        excludeCategories 'com.sky.csc.categories.WIP'
+    }
+}
+
+task testDdiWip(type: Test) {
+    group = 'verification'
+    reports.junitXml.destination = file("${project.buildDir}/test-results/wip/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
+
+    useJUnit {
+        includeCategories 'com.sky.csc.categories.DDI'
+        excludeCategories 'com.sky.csc.categories.Done'
+    }
+}
+
+// Default test task to run non-WIP tests
 test {
     reports.junitXml.destination = file("${project.buildDir}/test-results/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
+
+    useJUnit {
+        excludeCategories 'com.sky.csc.categories.WIP'
+    }
 }
 
 dependencies {

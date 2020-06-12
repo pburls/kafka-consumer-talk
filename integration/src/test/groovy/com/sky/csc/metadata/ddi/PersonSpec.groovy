@@ -1,18 +1,23 @@
 package com.sky.csc.metadata.ddi
 
-
+import com.sky.csc.categories.DDI
+import com.sky.csc.categories.Done
+import com.sky.csc.categories.WIP
 import com.sky.csc.generators.PmpComposites
 import com.sky.csc.integrations.CsaPersistedTopics
 import com.sky.csc.integrations.MerlinMock
 import com.sky.csc.integrations.PmpDdiOutboundTranslator
 import com.sky.pmp.domain.Source
+import org.junit.experimental.categories.Category
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
+@Category(DDI)
 class PersonSpec extends Specification {
     static final Logger log = LoggerFactory.getLogger(PersonSpec.class);
 
+    @Category(WIP)
     def "PMP Party composite to DDI PERSON fragment to Merlin Person object"() {
         given: "A PMP Party composite"
         def pmpPartyComposite = PmpComposites.generatePartyComposite()
@@ -34,5 +39,18 @@ class PersonSpec extends Specification {
         def merlinPersonObject = MerlinMock.getMerlinObject(DdiFragmentType.Person, entityUUID)
         merlinPersonObject
         //assert all the values on the merlinPersonObject are equal to the pmpPartyComposite's values
+    }
+
+    @Category(Done)
+    def "Example Done DDI PERSON fragment test"() {
+        given: "nothing"
+        def a = 1
+        def b = 1
+
+        when: "something happens"
+        def result = a + b
+
+        then: "pass"
+        result == 2
     }
 }
