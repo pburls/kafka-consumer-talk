@@ -12,5 +12,8 @@ modules:
       - name: CSC Metadata Integration Tests
         directory: integration/build/reports/tests/test
         files: ['index.html']
+      - name: WIP CSC Metadata Integration Tests
+        directory: integration/build/reports/tests/testWip
+        files: ['index.html']
     cronTriggers:
       main: 'H 7-19 * * 1-5'

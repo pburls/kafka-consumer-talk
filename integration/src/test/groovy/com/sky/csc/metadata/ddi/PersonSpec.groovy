@@ -53,4 +53,16 @@ class PersonSpec extends Specification {
         then: "pass"
         result == 2
     }
+
+    def "Example un-categorised DDI PERSON fragment test"() {
+        given: "nothing"
+        def a = 1
+        def b = 1
+
+        when: "something happens"
+        def result = a + b
+
+        then: "pass"
+        result == 2
+    }
 }

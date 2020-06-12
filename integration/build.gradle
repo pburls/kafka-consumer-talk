@@ -61,6 +61,7 @@ task testDdi(type: Test) {
 
 task testDdiWip(type: Test) {
     group = 'verification'
+    ignoreFailures = true
     reports.junitXml.destination = file("${project.buildDir}/test-results/wip/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
 
     useJUnit {
@@ -69,12 +70,22 @@ task testDdiWip(type: Test) {
     }
 }
 
-// Default test task to run non-WIP tests
+// Default test task to run all non-WIP tests
 test {
     reports.junitXml.destination = file("${project.buildDir}/test-results/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
 
     useJUnit {
-        excludeCategories 'com.sky.csc.categories.WIP'
+        includeCategories 'com.sky.csc.categories.Done'
+    }
+}
+
+task testWip(type: Test) {
+    group = 'verification'
+    ignoreFailures = true
+    reports.junitXml.destination = file("${project.buildDir}/test-results/wip/junit-reports") // https://github.com/sky-uk/jenkins-tooling/blob/36d28ee4dae27a10d3fde208cb9b73b38136dbb9/examples/reference/cd.yml#L61
+
+    useJUnit {
+        excludeCategories 'com.sky.csc.categories.Done'
     }
 }
 
