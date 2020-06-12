@@ -17,3 +17,11 @@ modules:
         files: ['index.html']
     cronTriggers:
       main: 'H 7-19 * * 1-5'
+    slackNotifications:
+      main:
+        onEvents: ['failure', 'back-to-normal', 'success']
+
+slack:
+  domain: sky
+  token: 2QAXCv6VqZJNxsVGQBGeb8q9
+  defaultChannel: csc-e2e-metadata-int-tests
