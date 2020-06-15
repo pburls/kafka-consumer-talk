@@ -7,15 +7,18 @@ import com.sky.csc.generators.PmpComposites
 import com.sky.csc.integrations.CsaPersistedTopics
 import com.sky.csc.integrations.MerlinMock
 import com.sky.csc.integrations.PmpDdiOutboundTranslator
-import com.sky.pmp.domain.Source
+import com.sky.csc.metadata.ddi.model.Person
 import org.junit.experimental.categories.Category
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import spock.lang.Specification
 
+import javax.validation.Validation
+
 @Category(DDI)
 class PersonSpec extends Specification {
-    static final Logger log = LoggerFactory.getLogger(PersonSpec.class);
+    static final log = LoggerFactory.getLogger(PersonSpec.class);
+    static final validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Category(WIP)
     def "PMP Party composite to DDI PERSON fragment to Merlin Person object"() {
@@ -31,8 +34,9 @@ class PersonSpec extends Specification {
         PmpDdiOutboundTranslator.sendInputComposite(pmpPartyComposite)
 
         then: "a DDI Person fragment should be created"
-        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, entityUUID)
-        ddiPersonFragment
+        Person ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, entityUUID)
+        def violations = validator.validate(ddiPersonFragment)
+        !violations
         //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
 
         and: "a Merlin Person object should be created"
