@@ -27,22 +27,23 @@ class PersonSpec extends Specification {
         def entityUUID = PmpComposites.getEntityUuidFromComposite(pmpPartyComposite)
         log.debug("PMP Party composite with PD Reference '${entityUUID}'")
 
-        and: "a TopicListener for the CSA DDI PERSON persisted topic"
+        and: "a TopicListener for the CSA DDI Person persisted topic"
         def personTopicListener = CsaPersistedTopics.createTopicListener(DdiFragmentType.Person)
 
         when: "the party composite is added to the PMP DDI Outbound Translator input queue"
         PmpDdiOutboundTranslator.sendInputComposite(pmpPartyComposite)
 
-        then: "a DDI Person fragment should be created"
-        Person ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, entityUUID)
-        def violations = validator.validate(ddiPersonFragment)
-        !violations
-        //assert all the values on the ddiPersonFragment are equal to the pmpPartyComposite's values
+        then: "a DDI PERSON fragment record should be found on the topic"
+        def ddiPersonFragment = CsaPersistedTopics.getDdiFragmentForKey(personTopicListener, DdiFragmentType.Person, entityUUID)
+        ddiPersonFragment
 
-        and: "a Merlin Person object should be created"
+        and: "the fragment object should adhere to the DDI PERSON schema"
+        def violations = validator.validate(ddiPersonFragment as Person)
+        !violations
+
+        and: "a Merlin Person object should be found in the Merlin Mock"
         def merlinPersonObject = MerlinMock.getMerlinObject(DdiFragmentType.Person, entityUUID)
         merlinPersonObject
-        //assert all the values on the merlinPersonObject are equal to the pmpPartyComposite's values
     }
 
     @Category(Done)
