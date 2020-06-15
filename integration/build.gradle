@@ -13,6 +13,7 @@ ext {
 
     metadataDdiSchemasSpecPath = "specs/shared-schemas/metadata/Metadata-DDI.yaml"
     metadataDdiSchemasVersion = 'v0.2'
+    //metadataDdiSchemasVersion = 'v1.0-merlinprofile.1'
     schemaModelsDir = file("${project.buildDir}/generated-sources/schema-models")
 }
 
