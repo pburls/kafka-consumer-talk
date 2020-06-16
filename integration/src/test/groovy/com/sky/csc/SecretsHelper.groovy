@@ -5,8 +5,7 @@ import javax.crypto.spec.SecretKeySpec
 import java.security.MessageDigest
 
 class SecretsHelper {
-    static final passwordEnvironmentVariableName = "CSC_E2E_TESTS_PASSWORD"
-    static final password = getPasswordFromEnvironmentVariables()
+    static final password = Configuration.getEnvironmentVariable("CSC_E2E_TESTS_PASSWORD")
 
     static String decrypt(String encryptedString) {
         def cipher = initCipher(Cipher.DECRYPT_MODE, generateSecretKeyFromPassword())
@@ -31,12 +30,5 @@ class SecretsHelper {
         def cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         cipher.init(cipherMode, keySpec)
         return cipher
-    }
-
-    private static getPasswordFromEnvironmentVariables() {
-        if (!System.getenv().containsKey(passwordEnvironmentVariableName)) {
-            throw new RuntimeException("Secret Key Environment Variable '${passwordEnvironmentVariableName}' is not set.")
-        }
-        return System.getenv(passwordEnvironmentVariableName)
     }
 }

@@ -7,8 +7,8 @@ import java.time.Duration
 class Configuration {
     class PmpDdiOutboundTranslatorInputConfig {
         static final brokerUrl = "tcp://vm009075.bskyb.com:41616"
-        static final brokerUsername = getEnvironmentVariable("PMP_DEV5_AMQ_USERNAME")
-        static final brokerPassword = getEnvironmentVariable("PMP_DEV5_AMQ_PASSWORD")
+        static final brokerUsername = SecretsHelper.decrypt("/8XA650BMy+7CYYJYhyMgg==")
+        static final brokerPassword = SecretsHelper.decrypt("/8XA650BMy+7CYYJYhyMgg==")
         static final queueName = "Consumer.OutboundDdi.e2e.VirtualTopic.pmp.output"
     }
 
@@ -23,7 +23,7 @@ class Configuration {
             static final securityProtocol = "SSL"
             static final truststoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.truststore.jks"
             static final keystoreResourceLocation = "/kafka-ssl/csc-metadata-tests.kafka.keystore.jks"
-            static final password = getEnvironmentVariable("CSP_DEV_KAFKA_SSL_PASSWORD")
+            static final password = SecretsHelper.decrypt("xHUpCxeNePOlNT5NKw3Wmk4gMOZWOJgnVTL5rJW9DPA=")
         }
     }
 
@@ -39,7 +39,7 @@ class Configuration {
         static final requestsEndpoint = "/requests"
     }
 
-    private static getEnvironmentVariable(name) {
+    static getEnvironmentVariable(String name) {
         if (!System.getenv().containsKey(name)) {
             throw new RuntimeException("Configuration Environment Variable '${name}' is not set.")
         }
