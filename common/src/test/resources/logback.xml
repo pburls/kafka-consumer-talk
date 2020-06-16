@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.kafka" level="INFO"/>
+<!--    <logger name="org.apache.kafka" level="INFO"/>-->
     <logger name="com.sky.csc.metadata.integration.tests.common" level="DEBUG"/>
 
     <!-- Strictly speaking, the level attribute is not necessary since -->

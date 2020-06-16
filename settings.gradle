@@ -1,4 +1,3 @@
-rootProject.name = 'csc-e2e-metadata-int-tests'
+rootProject.name = 'kafka-consumer-talk'
 include ':integration'
 include ':common'
-
