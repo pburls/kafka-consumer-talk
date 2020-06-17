@@ -5,7 +5,6 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 public class KafkaUtils {
@@ -15,7 +14,7 @@ public class KafkaUtils {
                                                                  Properties consumerConfig,
                                                                  Function<Properties, KafkaConsumer<K, V>> kafkaConsumerFactory,
                                                                  String topic,
-                                                                 Duration subscriptionTimeout) throws TimeoutException {
+                                                                 Duration subscriptionTimeout) throws InterruptedException {
         TopicListenerImpl listener = new TopicListenerImpl(keyDeserializer, valueDeserializer, consumerGroupIdPrefix, consumerConfig, kafkaConsumerFactory, topic);
         listener.subscribeAndAwaitPartitionAssignment(subscriptionTimeout);
         return listener;
