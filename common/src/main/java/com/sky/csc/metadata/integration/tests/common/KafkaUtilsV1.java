@@ -21,11 +21,11 @@ public class KafkaUtilsV1 {
                                                                                                     final String key,
                                                                                                     final int maxRetries,
                                                                                                     final Duration pollDuration) {
+        consumer.subscribe(Collections.singletonList(topic));
         return CompletableFuture.supplyAsync(() -> {
             log.debug("Asynchronous findRecordByKey for key '" + key + "' on topic '" + topic + "' started on Thread: "+ Thread.currentThread().getId());
             int retry = 0;
             Optional<ConsumerRecord<String, String>> foundRecord = Optional.empty();
-            consumer.subscribe(Collections.singletonList(topic));
 
             while (!foundRecord.isPresent() && retry < maxRetries) {
                 retry++;
