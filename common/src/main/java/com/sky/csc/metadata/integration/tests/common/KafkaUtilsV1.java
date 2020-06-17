@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class KafkaUtilsV1 {
@@ -22,6 +23,7 @@ public class KafkaUtilsV1 {
                                                                                                     final int maxRetries,
                                                                                                     final Duration pollDuration) {
         consumer.subscribe(Collections.singletonList(topic));
+        log.debug("Current assigned partitions: " + consumer.assignment().stream().map(partition -> "" + partition.partition() + "@" + consumer.position(partition)).collect(Collectors.joining(",")));
         return CompletableFuture.supplyAsync(() -> {
             log.debug("Asynchronous findRecordByKey for key '" + key + "' on topic '" + topic + "' started on Thread: "+ Thread.currentThread().getId());
             int retry = 0;
@@ -31,6 +33,7 @@ public class KafkaUtilsV1 {
                 retry++;
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(pollDuration);
                 log.debug("Found " + consumerRecords.count() + " records during last poll.");
+                log.debug("Current assigned partitions: " + consumer.assignment().stream().map(partition -> "" + partition.partition() + "@" + consumer.position(partition)).collect(Collectors.joining(",")));
                 foundRecord = StreamSupport.stream(consumerRecords.spliterator(), false)
                         .peek(record -> log.debug("Processing record with key '" + record.key() + "' at offset: " + record.offset()))
                         .filter(record -> record.key().equals(key))

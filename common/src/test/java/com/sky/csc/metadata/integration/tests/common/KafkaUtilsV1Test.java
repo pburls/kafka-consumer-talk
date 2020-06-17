@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class KafkaUtilsV1Test {
