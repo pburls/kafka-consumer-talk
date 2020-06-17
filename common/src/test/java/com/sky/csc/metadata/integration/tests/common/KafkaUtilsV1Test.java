@@ -30,7 +30,7 @@ public class KafkaUtilsV1Test {
     public static final SharedKafkaTestResource sharedKafkaTestResource = new SharedKafkaTestResource();
 
     @Test
-    public void testFindRecordByKey() throws Exception {
+    public void testSubscribeAndStartSearchForRecord() throws Exception {
         // Given a Kafka broker and topic
         final KafkaTestUtils kafkaTestUtils = sharedKafkaTestResource.getKafkaTestUtils();
         kafkaTestUtils.createTopic(TEST_TOPIC_NAME, 1, (short) 1);
@@ -45,24 +45,24 @@ public class KafkaUtilsV1Test {
         props = new Properties();
         final KafkaProducer<String, String> producer = kafkaTestUtils.getKafkaProducer(StringSerializer.class, StringSerializer.class, props);
 
-        // and a test record
+        // and a test message with key
         final String messageToFind = "testMessage";
         final String keyToFind = "testKey";
         final ProducerRecord<String, String> testRecord = new ProducerRecord<>(TEST_TOPIC_NAME, keyToFind, messageToFind);
 
-        // When findRecordByKey is called with the key to find on the test topic
-        System.out.println("Invoking findRecordByKey for key '" + keyToFind + "' on topic '" + TEST_TOPIC_NAME + "' from Thread: "+ Thread.currentThread().getId());
+        // and subscribeAndStartSearchForRecord is called with the key to find on the test topic
+        log.debug("Invoking findRecordByKey for key '" + keyToFind + "' on topic '" + TEST_TOPIC_NAME + "' from Thread: "+ Thread.currentThread().getId());
         final Future<Optional<ConsumerRecord<String, String>>> resultFuture = KafkaUtilsV1.subscribeAndStartSearchForRecord(kafkaConsumer, TEST_TOPIC_NAME, keyToFind, 5, Duration.ofSeconds(1));
 
-        // and when the test record is produced to the test topic
-        System.out.println("Producing test record from Thread: "+ Thread.currentThread().getId());
+        // When the test record is produced to the test topic
+        log.debug("Producing test record from Thread: "+ Thread.currentThread().getId());
         producer.send(testRecord);
         producer.flush();
 
         // Then a record is found for the key
-        System.out.println("Waiting for findRecordByKey results on Thread: "+ Thread.currentThread().getId());
+        log.debug("Waiting for findRecordByKey results on Thread: "+ Thread.currentThread().getId());
         Optional<ConsumerRecord<String, String>> foundRecord = resultFuture.get();
-        System.out.println("Received findRecordByKey results on Thread: "+ Thread.currentThread().getId());
+        log.debug("Received findRecordByKey results on Thread: "+ Thread.currentThread().getId());
         Assert.assertTrue(foundRecord.isPresent());
 
         // Then the record found value is equal to the test record value
