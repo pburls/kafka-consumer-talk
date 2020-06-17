@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -57,16 +55,19 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
         return this.topic;
     }
 
-    public void subscribeAndAwaitPartitionAssignment(Duration assignmentTimeout) throws InterruptedException {
+    public void subscribeAndAwaitPartitionAssignment(Duration assignmentTimeout) throws TimeoutException {
         PartitionAssignmentListener partitionAssignmentListener = new PartitionAssignmentListener(this);
         consumer.subscribe(Collections.singletonList(topic), partitionAssignmentListener);
-        log.debug("Waiting for subscription and partition assignment.");
-        boolean successful = partitionAssignmentListener.countDownLatch.await(assignmentTimeout.getSeconds(), TimeUnit.SECONDS);
-        if (successful) {
-            log.debug("Waiting for subscription and partition assignment completed successfully.");
-        } else {
-            log.debug("Waiting for subscription and partition assignment timed out.");
+        // give the main thread to the consumer to request and been assigned partitions
+        log.debug("Starting poll to complete subscription and partition assignment");
+        try {
+            ConsumerRecords<K, V> consumerRecords = consumer.poll(assignmentTimeout);
+            log.warn("Awaiting partition assignment poll returned {} records", consumerRecords.count());
+            throw new TimeoutException("TopicListener partition assignment wait timeout duration exceeded.");
+        } catch (WakeupException e) {
+            if (!partitionAssignmentListener.isPartitionsAssigned()) throw e;
         }
+        log.debug("Subscription and partition assignment finished.");
     }
 
     @Override
@@ -99,7 +100,6 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
     class PartitionAssignmentListener implements ConsumerRebalanceListener {
         private boolean isPartitionsAssigned = false;
         private final TopicListenerImpl topicListener;
-        private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         PartitionAssignmentListener(TopicListenerImpl topicListener) {
             this.topicListener = topicListener;
@@ -119,7 +119,7 @@ class TopicListenerImpl<K, V> implements TopicListener<K, V> {
             partitions.forEach(topicPartition -> log.debug("Partition partitionId '{}' at offset {} on topic '{}' assigned for TopicListener '{}'.", topicPartition.partition(), this.topicListener.consumer.position(topicPartition), topicPartition.topic(), this.topicListener.getConsumerGroupId()));
             if (!this.isPartitionsAssigned) {
                 this.isPartitionsAssigned = true;
-                this.countDownLatch.countDown();
+                this.topicListener.consumer.wakeup();
             }
         }
     }
