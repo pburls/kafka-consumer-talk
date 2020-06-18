@@ -50,7 +50,7 @@ public class KafkaUtilsV1Test {
         final ProducerRecord<String, String> testRecord = new ProducerRecord<>(TEST_TOPIC_NAME, keyToFind, messageToFind);
 
         // and subscribeAndStartSearchForRecord is called with the key to find on the test topic
-        log.debug("Invoking findRecordByKey for key '" + keyToFind + "' on topic '" + TEST_TOPIC_NAME + "' from Thread: "+ Thread.currentThread().getId());
+        log.debug("Invoking subscribeAndStartSearchForRecord for key '" + keyToFind + "' on topic '" + TEST_TOPIC_NAME + "' from Thread: "+ Thread.currentThread().getId());
         final Future<Optional<ConsumerRecord<String, String>>> resultFuture = KafkaUtilsV1.subscribeAndStartSearchForRecord(kafkaConsumer, TEST_TOPIC_NAME, keyToFind, 5, Duration.ofSeconds(1));
 
         // When the test record is produced to the test topic
@@ -59,9 +59,9 @@ public class KafkaUtilsV1Test {
         producer.flush();
 
         // Then a record is found for the key
-        log.debug("Waiting for findRecordByKey results on Thread: "+ Thread.currentThread().getId());
+        log.debug("Waiting for subscribeAndStartSearchForRecord results on Thread: "+ Thread.currentThread().getId());
         Optional<ConsumerRecord<String, String>> foundRecord = resultFuture.get();
-        log.debug("Received findRecordByKey results on Thread: "+ Thread.currentThread().getId());
+        log.debug("Received subscribeAndStartSearchForRecord results on Thread: "+ Thread.currentThread().getId());
         Assert.assertTrue(foundRecord.isPresent());
 
         // Then the record found value is equal to the test record value
