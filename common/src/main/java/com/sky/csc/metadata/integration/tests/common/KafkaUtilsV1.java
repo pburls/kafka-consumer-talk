@@ -23,7 +23,7 @@ public class KafkaUtilsV1 {
                                                                                                     final Duration pollDuration) {
         consumer.subscribe(Collections.singletonList(topic));
         return CompletableFuture.supplyAsync(() -> {
-            log.debug("Asynchronous findRecordByKey for key '" + key + "' on topic '" + topic + "' started on Thread: "+ Thread.currentThread().getId());
+            log.debug("Asynchronous subscribeAndStartSearchForRecord for key '" + key + "' on topic '" + topic + "' started on Thread: "+ Thread.currentThread().getId());
             int retry = 0;
             Optional<ConsumerRecord<String, String>> foundRecord = Optional.empty();
 
@@ -39,7 +39,7 @@ public class KafkaUtilsV1 {
                 consumer.commitSync();
             }
             consumer.close();
-            log.debug("Asynchronous findRecordByKey for key '" + key + "' on topic '" + topic + "' completed on Thread: "+ Thread.currentThread().getId());
+            log.debug("Asynchronous subscribeAndStartSearchForRecord for key '" + key + "' on topic '" + topic + "' completed on Thread: "+ Thread.currentThread().getId());
             return foundRecord;
         });
     }
